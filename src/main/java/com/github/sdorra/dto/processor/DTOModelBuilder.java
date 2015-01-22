@@ -50,6 +50,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
@@ -286,20 +287,20 @@ public class DTOModelBuilder
         id = dtoField.id();
       }
 
-      TypeElement element =
-        (TypeElement) processingEnv.getTypeUtils().asElement(typeMirror);
+      String dtoName = null;
 
-      if (element != null)
+      if (!(typeMirror instanceof PrimitiveType))
       {
+        TypeElement element =
+          (TypeElement) processingEnv.getTypeUtils().asElement(typeMirror);
         GenerateDTO dto = element.getAnnotation(GenerateDTO.class);
 
-        modelField = new DTOModelField(constantName(varname), varname,
-          typeValue, id, createDTOName(element, dto));
+        dtoName = createDTOName(element, dto);
       }
-      else
-      {
-        log("could not read type of field " + varname);
-      }
+
+      modelField = new DTOModelField(constantName(varname), varname, typeValue,
+        id, dtoName);
+
     }
 
     return modelField;
