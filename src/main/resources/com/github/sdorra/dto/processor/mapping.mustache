@@ -85,8 +85,8 @@ public class {{simpleDTOName}} extends DTO
    **/
   public void mergeWithEntity({{className}} {{instanceName}})
   {
-    {{#fields}}{{#setter}}
+    {{#fields}}{{^dto}}{{#setter}}
     {{instanceName}}.{{setter}}(({{type}}) this.get({{constant}}));
-    {{/setter}}{{/fields}}
+    {{/setter}}{{/dto}}{{/fields}}
   }
 }
