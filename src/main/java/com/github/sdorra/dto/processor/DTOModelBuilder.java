@@ -288,10 +288,18 @@ public class DTOModelBuilder
 
       TypeElement element =
         (TypeElement) processingEnv.getTypeUtils().asElement(typeMirror);
-      GenerateDTO dto = element.getAnnotation(GenerateDTO.class);
 
-      modelField = new DTOModelField(constantName(varname), varname, typeValue,
-        id, createDTOName(element, dto));
+      if (element != null)
+      {
+        GenerateDTO dto = element.getAnnotation(GenerateDTO.class);
+
+        modelField = new DTOModelField(constantName(varname), varname,
+          typeValue, id, createDTOName(element, dto));
+      }
+      else
+      {
+        log("could not read type of field " + varname);
+      }
     }
 
     return modelField;
