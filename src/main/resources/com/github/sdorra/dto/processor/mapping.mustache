@@ -1,0 +1,157 @@
+package {{packageName}};
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.net.URI;
+
+import java.util.LinkedHashMap;
+
+import com.github.sdorra.dto.DTOContext;
+import com.github.sdorra.dto.Meta;
+
+/**
+ * Automatic generated dto class for {@link {{className}}}.
+ *
+ * @see http://de.slideshare.net/stormpath/rest-jsonapis
+ */
+public class {{simpleDTOName}} extends LinkedHashMap<String,Object>
+{
+  /** sub path of resource */
+  public static final String RESOURCE_PATH = "{{resourcePath}}";
+
+  //~--- DTO fields ------------------------------------------------------------
+  
+  /** self link */
+  public static final String HREF = "href";
+  
+  /** meta data */
+  public static final String META = "meta";
+  {{#fields}}
+  
+  /** dto for field {{variable}} */
+  public static final String {{constant}} = "{{variable}}";
+  {{/fields}}
+  
+  //~--- constructors ----------------------------------------------------------
+  
+  /**
+   * No args constructor for unmarshalling.
+   **/
+  {{simpleDTOName}}(){}
+  
+  /** 
+   * Constructor to copy dto fields from {@link {{className}}}.
+   * 
+   * @param dtoContext dto context
+   * @param {{instanceName}}
+   **/
+  public {{simpleDTOName}}(DTOContext dtoContext, {{className}} {{instanceName}})
+  {
+     this.putMetaObject(dtoContext, {{instanceName}}.{{idField.getter}}());
+     {{#fields}}{{#getter}}
+     {{#dto}}
+     // convert nested dto
+     this.putNonNull(dtoContext, {{constant}}, {{dto}}.fromEntity(dtoContext.nested({{constant}}), {{instanceName}}.{{getter}}()));
+     {{/dto}}
+     {{^dto}}
+     this.putNonNull(dtoContext, {{constant}}, {{instanceName}}.{{getter}}());
+     {{/dto}}
+     {{/getter}}{{/fields}}
+  }
+  
+  /**
+   * Append object meta data.
+   **/
+  private void putMetaObject(DTOContext dtoContext, Object idObject)
+  {
+    this.put(META, new Meta(createSelfHref(dtoContext, idObject), dtoContext.getMediaType()));
+  }
+  
+  /**
+   * Creates the self uri.
+   *
+   * @param dtoContext dto context
+   * @param id object
+   *
+   * return self uri
+   **/
+  private URI createSelfHref(DTOContext dtoContext, Object id)
+  {
+    return dtoContext.getUriInfo().getBaseUriBuilder().path(RESOURCE_PATH).path(id.toString()).build();
+  }
+  
+  /**
+   * Put value to map, if value is not null or is not in the context.
+   * 
+   * @param dtoContext dto context
+   * @param key name of key
+   * @param value value object
+   **/
+  private void putNonNull(DTOContext dtoContext, String key, Object value)
+  {
+    if (dtoContext.isFieldInContext(key))
+    {
+      this.putNonNull(key, value);
+    }
+  }
+  
+  /**
+   * Put value to map, if value is not null.
+   * 
+   * @param key name of key
+   * @param value value object
+   **/
+  private void putNonNull(String key, Object value)
+  {
+    if ( key == null || key.length() == 0 )
+    {
+      throw new NullPointerException("key is null");
+    }
+    if (value != null)
+    {
+      this.put(key, value);
+    }
+  }
+  
+  /**
+   * Creates a new dto from the entity.
+   *
+   * @param dtoContext dto context
+   * @param {{instanceName}}
+   *
+   * @return new dto
+   **/
+  public static {{simpleDTOName}} fromEntity(DTOContext dtoContext, {{className}} {{instanceName}})
+  {
+    {{simpleDTOName}} dto = null;
+    if ({{instanceName}} != null)
+    {
+      dto = new {{simpleDTOName}}(dtoContext, {{instanceName}}); 
+    }
+    return dto;
+  }
+  
+  /**
+   * Converts the dto back to a {{className}}.
+   *
+   * @return entity
+   **/
+  public {{className}} toEntity()
+  {
+    {{className}} {{instanceName}} = new {{className}}();
+    mergeWithEntity({{instanceName}});
+    return {{instanceName}};
+  }
+  
+  /**
+   * Creates entity from dto.
+   *
+   * @param {{instanceName}}
+   **/
+  public void mergeWithEntity({{className}} {{instanceName}})
+  {
+    {{#fields}}{{#setter}}
+    {{instanceName}}.{{setter}}(({{type}}) this.get({{constant}}));
+    {{/setter}}{{/fields}}
+  }
+}
