@@ -26,17 +26,12 @@
 
 package com.github.sdorra.dto;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import com.google.common.base.Function;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
-
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -123,8 +118,8 @@ public final class DTOContext
       ctx = new DTOContext(
         uriInfo, 
         mediaType,
-        Collections2.transform(fields, new NestedFieldsTransformer(field)),
-        Collections2.transform(expandingFields,new NestedFieldsTransformer(field)), 
+        createNestedFieldCollection(fields, field),
+        createNestedFieldCollection(expandingFields, field),
         true
       );
       //J+
@@ -145,7 +140,7 @@ public final class DTOContext
   {
     if (expandingFields == null)
     {
-      expandingFields = ImmutableSet.of();
+      expandingFields = Collections.emptySet();
     }
 
     return expandingFields;
@@ -161,7 +156,7 @@ public final class DTOContext
   {
     if (fields == null)
     {
-      fields = ImmutableSet.of();
+      fields = Collections.emptySet();
     }
 
     return fields;
@@ -219,6 +214,36 @@ public final class DTOContext
         || (!nested && (f.isEmpty() || f.contains(field))));
   }
 
+  //~--- methods --------------------------------------------------------------
+
+  /**
+   * Method description
+   *
+   *
+   * @param collection
+   * @param field
+   *
+   * @return
+   */
+  private Collection<String> createNestedFieldCollection(
+    Collection<String> collection, String field)
+  {
+    Set<String> set = new HashSet<String>();
+    String prefix = field.concat(SEPARATOR_FIELD);
+
+    for (String f : collection)
+    {
+
+      if (f.startsWith(prefix))
+      {
+        set.add(f.substring(prefix.length()));
+      }
+
+    }
+
+    return set;
+  }
+
   //~--- inner classes --------------------------------------------------------
 
   /**
@@ -274,7 +299,7 @@ public final class DTOContext
      *
      * @return
      */
-    public Builder addExpandingFields(Iterable<String> expandingFields)
+    public Builder addExpandingFields(Collection<String> expandingFields)
     {
       for (String ef : expandingFields)
       {
@@ -313,7 +338,7 @@ public final class DTOContext
      *
      * @return
      */
-    public Builder addFields(Iterable<String> fields)
+    public Builder addFields(Collection<String> fields)
     {
       for (String f : fields)
       {
@@ -331,8 +356,9 @@ public final class DTOContext
      */
     public DTOContext build()
     {
-      return new DTOContext(uriInfo, mediaType, fields.build(),
-        expandingFields.build(), false);
+      return new DTOContext(uriInfo, mediaType,
+        Collections.unmodifiableSet(fields),
+        Collections.unmodifiableSet(expandingFields), false);
     }
 
     /**
@@ -385,15 +411,22 @@ public final class DTOContext
      * Method description
      *
      *
-     * @param builder
-     * @param field
+     * @param collection
+     * @param fields
      */
-    private void parseAndAppend(ImmutableSet.Builder<String> builder,
-      String field)
+    private void parseAndAppend(Collection<String> collection, String fields)
     {
-      if (!Strings.isNullOrEmpty(field))
+      if (fields != null)
       {
-        builder.addAll(Splitter.on(',').trimResults().split(field));
+        for (String field : fields.split(","))
+        {
+          field = field.trim();
+
+          if (field.length() > 0)
+          {
+            collection.add(field);
+          }
+        }
       }
     }
 
@@ -401,11 +434,11 @@ public final class DTOContext
      * Method description
      *
      *
-     * @param builder
+     * @param collection
      * @param request
      * @param key
      */
-    private void parseAndAppendParameter(ImmutableSet.Builder<String> builder,
+    private void parseAndAppendParameter(Collection<String> collection,
       HttpServletRequest request, String key)
     {
       String[] values = request.getParameterValues(key);
@@ -414,7 +447,7 @@ public final class DTOContext
       {
         for (String value : values)
         {
-          parseAndAppend(builder, value);
+          parseAndAppend(collection, value);
         }
       }
     }
@@ -422,69 +455,16 @@ public final class DTOContext
     //~--- fields -------------------------------------------------------------
 
     /** Field description */
-    private final ImmutableSet.Builder<String> fields = ImmutableSet.builder();
+    private final Set<String> fields = new HashSet<String>();
 
     /** Field description */
-    private final ImmutableSet.Builder<String> expandingFields =
-      ImmutableSet.builder();
+    private final Set<String> expandingFields = new HashSet<String>();
 
     /** Field description */
     private final UriInfo uriInfo;
 
     /** Field description */
     private String mediaType;
-  }
-
-
-  /**
-   * Class description
-   *
-   *
-   * @version        Enter version here..., 15/01/22
-   * @author         Enter your name here...
-   */
-  private static class NestedFieldsTransformer
-    implements Function<String, String>
-  {
-
-    /**
-     * Constructs ...
-     *
-     *
-     * @param field
-     */
-    public NestedFieldsTransformer(String field)
-    {
-      this.prefix = field.concat(SEPARATOR_FIELD);
-    }
-
-    //~--- methods ------------------------------------------------------------
-
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     *
-     * @return
-     */
-    @Override
-    public String apply(String input)
-    {
-      String result = null;
-
-      if (input.startsWith(prefix))
-      {
-        result = input.substring(prefix.length());
-      }
-
-      return result;
-    }
-
-    //~--- fields -------------------------------------------------------------
-
-    /** Field description */
-    private final String prefix;
   }
 
 
