@@ -6,7 +6,7 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>dto-generator</name>
-  <description>Generate transfer objects, which are prepared for json desirialization, from your entities.</description>
+  <description>Generate transfer objects, which are prepared for json deserialization, from your entities.</description>
   <url>http://sdorra.github.io/dto-generator</url>
 
   <licenses>
