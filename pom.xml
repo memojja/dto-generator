@@ -44,6 +44,7 @@
   <modules>
     <module>dto-lib</module>
     <module>dto-processor</module>
+    <module>dto-example</module>
   </modules>
   
   <build>
