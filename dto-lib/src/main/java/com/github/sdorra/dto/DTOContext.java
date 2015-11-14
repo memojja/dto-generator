@@ -35,7 +35,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -66,12 +65,9 @@ public final class DTOContext
    * @param expandingFields
    * @param nested
    */
-  private DTOContext(UriInfo uriInfo, String mediaType,
-    Collection<String> fields, Collection<String> expandingFields,
-    boolean nested)
+  private DTOContext(UriInfo uriInfo, Collection<String> fields, Collection<String> expandingFields, boolean nested)
   {
     this.uriInfo = uriInfo;
-    this.mediaType = mediaType;
     this.fields = fields;
     this.expandingFields = expandingFields;
     this.nested = nested;
@@ -110,14 +106,13 @@ public final class DTOContext
     {
 
       // what about deep nested fields ??
-      ctx = new DTOContext(uriInfo, mediaType, null, expandingFields, false);
+      ctx = new DTOContext(uriInfo, null, expandingFields, false);
     }
     else
     {
       //J-
       ctx = new DTOContext(
         uriInfo, 
-        mediaType,
         createNestedFieldCollection(fields, field),
         createNestedFieldCollection(expandingFields, field),
         true
@@ -160,17 +155,6 @@ public final class DTOContext
     }
 
     return fields;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public String getMediaType()
-  {
-    return mediaType;
   }
 
   /**
@@ -356,9 +340,12 @@ public final class DTOContext
      */
     public DTOContext build()
     {
-      return new DTOContext(uriInfo, mediaType,
+      return new DTOContext(
+        uriInfo, 
         Collections.unmodifiableSet(fields),
-        Collections.unmodifiableSet(expandingFields), false);
+        Collections.unmodifiableSet(expandingFields), 
+        false
+      );
     }
 
     /**
@@ -377,59 +364,18 @@ public final class DTOContext
       return this;
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param mediaType
-     *
-     * @return
-     */
-    public Builder mediaType(String mediaType)
-    {
-      this.mediaType = mediaType;
-
-      return this;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param mediaType
-     *
-     * @return
-     */
-    public Builder mediaType(MediaType mediaType)
-    {
-      this.mediaType = mediaType.toString();
-
-      return this;
-    }
-
     private void parseAndAppend(Collection<String> collection, String fields){
       parseAndAppend(collection, fields, false);
     }
     
-    /**
-     * Method description
-     *
-     *
-     * @param collection
-     * @param fields
-     */
-    private void parseAndAppend(Collection<String> collection, String fields, boolean appendParent)
-    {
-      if (fields != null)
-      {
-        for (String field : fields.split(","))
-        {
+    private void parseAndAppend(Collection<String> collection, String fields, boolean appendParent) {
+      if (fields != null) {
+        for (String field : fields.split(",")) {
           field = field.trim();
 
-          if (field.length() > 0)
-          {
+          if (field.length() > 0) {
             int index = field.indexOf('.');
-            if ( appendParent && index > 0 ){
+            if ( appendParent && index > 0 ) {
               String parent = field.substring(0, index);
               collection.add(parent);
             } 
@@ -439,17 +385,8 @@ public final class DTOContext
       }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param collection
-     * @param request
-     * @param key
-     */
     private void parseAndAppendParameter(Collection<String> collection,
-      HttpServletRequest request, String key, boolean appendParent)
-    {
+      HttpServletRequest request, String key, boolean appendParent) {
       String[] values = request.getParameterValues(key);
 
       if (values != null)
@@ -478,9 +415,6 @@ public final class DTOContext
 
 
   //~--- fields ---------------------------------------------------------------
-
-  /** Field description */
-  private final String mediaType;
 
   /** Field description */
   private final boolean nested;
