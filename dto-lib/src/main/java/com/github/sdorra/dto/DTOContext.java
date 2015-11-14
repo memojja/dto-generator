@@ -235,7 +235,7 @@ public final class DTOContext
     {
 
       if (f.startsWith(prefix))
-      {
+      { 
         set.add(f.substring(prefix.length()));
       }
 
@@ -320,11 +320,11 @@ public final class DTOContext
      */
     public Builder addFields(String field, String... fields)
     {
-      parseAndAppend(this.fields, field);
+      parseAndAppend(this.fields, field, true);
 
       for (String f : fields)
       {
-        parseAndAppend(this.fields, f);
+        parseAndAppend(this.fields, f, true);
       }
 
       return this;
@@ -342,7 +342,7 @@ public final class DTOContext
     {
       for (String f : fields)
       {
-        parseAndAppend(this.fields, f);
+        parseAndAppend(this.fields, f, true);
       }
 
       return this;
@@ -371,8 +371,8 @@ public final class DTOContext
      */
     public Builder fromRequest(HttpServletRequest request)
     {
-      parseAndAppendParameter(fields, request, PARAMETER_FIELDS);
-      parseAndAppendParameter(expandingFields, request, PARAMETER_EXPAND);
+      parseAndAppendParameter(fields, request, PARAMETER_FIELDS, true);
+      parseAndAppendParameter(expandingFields, request, PARAMETER_EXPAND, false);
 
       return this;
     }
@@ -407,6 +407,10 @@ public final class DTOContext
       return this;
     }
 
+    private void parseAndAppend(Collection<String> collection, String fields){
+      parseAndAppend(collection, fields, false);
+    }
+    
     /**
      * Method description
      *
@@ -414,7 +418,7 @@ public final class DTOContext
      * @param collection
      * @param fields
      */
-    private void parseAndAppend(Collection<String> collection, String fields)
+    private void parseAndAppend(Collection<String> collection, String fields, boolean appendParent)
     {
       if (fields != null)
       {
@@ -424,6 +428,11 @@ public final class DTOContext
 
           if (field.length() > 0)
           {
+            int index = field.indexOf('.');
+            if ( appendParent && index > 0 ){
+              String parent = field.substring(0, index);
+              collection.add(parent);
+            } 
             collection.add(field);
           }
         }
@@ -439,7 +448,7 @@ public final class DTOContext
      * @param key
      */
     private void parseAndAppendParameter(Collection<String> collection,
-      HttpServletRequest request, String key)
+      HttpServletRequest request, String key, boolean appendParent)
     {
       String[] values = request.getParameterValues(key);
 
@@ -447,7 +456,7 @@ public final class DTOContext
       {
         for (String value : values)
         {
-          parseAndAppend(collection, value);
+          parseAndAppend(collection, value, appendParent);
         }
       }
     }

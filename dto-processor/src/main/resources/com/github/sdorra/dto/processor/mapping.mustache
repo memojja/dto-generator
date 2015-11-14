@@ -1,5 +1,8 @@
 package {{packageName}};
 
+import java.util.List;
+import java.util.ArrayList;
+
 import com.github.sdorra.dto.DTO;
 import com.github.sdorra.dto.DTOContext;
 
@@ -8,7 +11,7 @@ import com.github.sdorra.dto.DTOContext;
  *
  * @see http://de.slideshare.net/stormpath/rest-jsonapis
  */
-public class {{simpleDTOName}} extends DTO
+public class {{simpleDTOName}} extends DTO<{{className}}>
 {
   /** default serial version uid */
   private static final long serialVersionUID = 1L;
@@ -39,11 +42,17 @@ public class {{simpleDTOName}} extends DTO
    **/
   public {{simpleDTOName}}(DTOContext dtoContext, {{className}} {{instanceName}})
   {
-     this.putMetaObject(dtoContext, RESOURCE_PATH, {{instanceName}}.{{idField.getter}}());
+     this.putSelfLink(dtoContext, RESOURCE_PATH, {{instanceName}}.{{idField.getter}}());
      {{#fields}}{{#getter}}
      {{#dto}}
+     {{#multiValue}}
+     // convert nested dto's
+     this.putNonNull(dtoContext, {{constant}}, {{dto}}.fromEntities(dtoContext.nested({{constant}}), {{instanceName}}.{{getter}}()));
+     {{/multiValue}}
+     {{^multiValue}}
      // convert nested dto
      this.putNonNull(dtoContext, {{constant}}, {{dto}}.fromEntity(dtoContext.nested({{constant}}), {{instanceName}}.{{getter}}()));
+     {{/multiValue}}
      {{/dto}}
      {{^dto}}
      this.putNonNull(dtoContext, {{constant}}, {{instanceName}}.{{getter}}());
@@ -70,10 +79,31 @@ public class {{simpleDTOName}} extends DTO
   }
   
   /**
+   * Creates a new list of dtos from entities.
+   *
+   * @param dtoContext dto context
+   * @param {{instanceName}}s iterables
+   *
+   * @return new dto list
+   **/
+  public static List<{{simpleDTOName}}> fromEntities(DTOContext dtoContext, Iterable<{{className}}> {{instanceName}}s)
+  {
+    List<{{simpleDTOName}}> dtos = null;
+    if ({{instanceName}}s != null){
+      dtos = new ArrayList<{{simpleDTOName}}>();
+      for ({{className}} instance : {{instanceName}}s){
+        dtos.add(new {{simpleDTOName}}(dtoContext, instance));
+      }
+    }
+    return dtos;
+  }
+  
+  /**
    * Converts the dto back to a {{className}}.
    *
    * @return entity
    **/
+  @Override
   public {{className}} toEntity()
   {
     {{className}} {{instanceName}} = new {{className}}();
@@ -86,6 +116,7 @@ public class {{simpleDTOName}} extends DTO
    *
    * @param {{instanceName}}
    **/
+  @Override
   public void mergeWithEntity({{className}} {{instanceName}})
   {
     {{#fields}}{{^dto}}{{#setter}}

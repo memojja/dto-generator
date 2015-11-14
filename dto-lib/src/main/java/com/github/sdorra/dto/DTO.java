@@ -31,19 +31,28 @@ package com.github.sdorra.dto;
 import java.net.URI;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
+ * Base class for generated DTO's.
  *
  * @author Sebastian Sdorra
+ * @param <E> entity type
  */
-public class DTO extends LinkedHashMap<String, Object>
+public abstract class DTO<E> extends LinkedHashMap<String, Object>
 {
 
   /** self link */
-  public static final String HREF = "href";
+  public static final String LINK_SELF = "self";
+  
+  /** next link */
+  public static final String LINK_NEXT = "next";
+  
+  /** prev link */
+  public static final String LINK_PREV = "prev";
 
-  /** meta data */
-  public static final String META = "meta";
+  /** link element */
+  private static final String LINKS = "_links";
 
   //~--- methods --------------------------------------------------------------
 
@@ -62,23 +71,61 @@ public class DTO extends LinkedHashMap<String, Object>
     return dtoContext.getUriInfo().getBaseUriBuilder().path(resourcePath).path(
       id.toString()).build();
   }
-
+  
   /**
-   * Append object meta data.
+   * Append self link.
    *
    * @param dtoContext dto context
    * @param resourcePath resource path
    * @param id id object
    */
-  protected void putMetaObject(DTOContext dtoContext, String resourcePath,
-    Object id)
+  protected void putSelfLink(DTOContext dtoContext, String resourcePath, Object id){
+    putLink(LINK_SELF, createSelfHref(dtoContext, resourcePath, id));
+  }
+
+  /**
+   * Append link.
+   *
+   * @param name name of link
+   * @param uri uri
+   * 
+   * @return created link
+   */
+  public Link putLink(String name, String uri)
   {
-    //J-
-    this.put(META, new Meta(
-      createSelfHref(dtoContext, resourcePath, id),
-      dtoContext.getMediaType()
-    ));
-    //J+
+    Link link = new Link(uri);
+    putLink(name, link);
+    return link;
+  }
+  
+  /**
+   * Append link.
+   *
+   * @param name name of link
+   * @param uri uri
+   * 
+   * @return created link
+   */
+  public Link putLink(String name, URI uri)
+  {
+    Link link = new Link(uri.toString());
+    putLink(name, link);
+    return link;
+  }
+  
+  /**
+   * Append link.
+   * 
+   * @param name name of link
+   * @param link link
+   */
+  public void putLink(String name, Link link){
+    Map<String,Link> links = (Map<String,Link>) get(LINKS);
+    if (links == null){
+      links = new LinkedHashMap<String, Link>();
+      put(LINKS, links);
+    }
+    links.put(name, link);
   }
 
   /**
@@ -88,7 +135,7 @@ public class DTO extends LinkedHashMap<String, Object>
    * @param key name of key
    * @param value value object
    */
-  protected void putNonNull(DTOContext dtoContext, String key, Object value)
+  public void putNonNull(DTOContext dtoContext, String key, Object value)
   {
     if (dtoContext.isFieldInContext(key))
     {
@@ -102,7 +149,7 @@ public class DTO extends LinkedHashMap<String, Object>
    * @param key name of key
    * @param value value object
    */
-  protected void putNonNull(String key, Object value)
+  public void putNonNull(String key, Object value)
   {
     if ((key == null) || (key.length() == 0))
     {
@@ -114,4 +161,18 @@ public class DTO extends LinkedHashMap<String, Object>
       this.put(key, value);
     }
   }
+  
+   /**
+   * Converts the dto back to a entity.
+   *
+   * @return entity
+   **/
+  public abstract E toEntity();
+  
+  /**
+   * Creates entity from dto.
+   *
+   * @param entity
+   **/
+  public abstract void mergeWithEntity(E entity);
 }

@@ -42,15 +42,17 @@ public final class DTOModelField
    * @param type
    * @param id
    * @param dto
+   * @param multiValue
    */
   public DTOModelField(String constant, String variable, String type,
-    boolean id, String dto)
+    boolean id, String dto, boolean multiValue)
   {
     this.constant = constant;
     this.variable = variable;
     this.type = type;
     this.id = id;
     this.dto = dto;
+    this.multiValue = multiValue;
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -156,6 +158,27 @@ public final class DTOModelField
     this.setter = setter;
   }
 
+
+  public boolean isMultiValue()
+  {
+    return multiValue;
+  }
+
+  @Override
+  public String toString()
+  {
+    StringBuilder buffer = new StringBuilder();
+    buffer.append("constant: ").append(constant).append("\n");
+    buffer.append("variable: ").append(variable).append("\n");
+    buffer.append("type: ").append(type).append("\n");
+    buffer.append("id: ").append(id).append("\n");
+    buffer.append("dto: ").append(dto).append("\n");
+    buffer.append("multiValue: ").append(multiValue);
+    return buffer.toString();
+  }
+  
+  
+
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
@@ -178,4 +201,7 @@ public final class DTOModelField
 
   /** Field description */
   private String setter;
+  
+  /** Field description */
+  private final boolean multiValue;
 }

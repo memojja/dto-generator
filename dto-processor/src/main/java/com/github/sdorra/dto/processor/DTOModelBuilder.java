@@ -65,6 +65,18 @@ public class DTOModelBuilder
 
   /** Field description */
   private static final String PACKAGE_JAVA_LANG = "java.lang.";
+  
+  /** Field description */
+  private static final String CLASS_FQ_LIST = "java.util.List";
+  
+  /** Field description */
+  private static final String CLASS_FQ_ARRYALIST = "java.util.ArrayList";
+  
+  /** Field description */
+  private static final String CLASS_LIST = "List";
+  
+  /** Field description */
+  private static final String CLASS_ARRYALIST = "ArrayList";
 
   /** Field description */
   private static final String PREFIX_GET = "get";
@@ -140,11 +152,20 @@ public class DTOModelBuilder
       packageName,
       classElement.getSimpleName().toString(),
       dto.suffix(),
-      dto.value(),
+      createResourcePath(dto, classElement),
       idField,
       fields
     );
     //J+
+  }
+  
+  private String createResourcePath(GenerateDTO dto, TypeElement classElement) {
+    String value = dto.value();
+    if ("__default".equals(value)){
+      String name = classElement.getSimpleName().toString();
+      value = Character.toLowerCase(name.charAt(0)) + name.substring(1) + "s";
+    }
+    return value;
   }
 
   /**
@@ -279,6 +300,7 @@ public class DTOModelBuilder
       TypeMirror typeMirror = field.asType();
       String typeValue = type(typeMirror.toString());
       boolean id = false;
+      boolean multiValue = false;
 
       DTOField dtoField = field.getAnnotation(DTOField.class);
 
@@ -291,16 +313,28 @@ public class DTOModelBuilder
 
       if (!(typeMirror instanceof PrimitiveType))
       {
-        TypeElement element =
-          (TypeElement) processingEnv.getTypeUtils().asElement(typeMirror);
-        GenerateDTO dto = element.getAnnotation(GenerateDTO.class);
+        TypeElement element = (TypeElement) processingEnv.getTypeUtils().asElement(typeMirror);
+        
+        if (TypeElements.isMultiValue(element)){
+          DeclaredType dt = (DeclaredType) typeMirror;
+          
+          List<? extends TypeMirror> params = dt.getTypeArguments();
+          if (params.size() == 1){
+            TypeMirror generic = params.get(0);
+            TypeElement genericElement = (TypeElement) processingEnv.getTypeUtils().asElement(generic);
+            GenerateDTO dto = genericElement.getAnnotation(GenerateDTO.class);
+            dtoName = createDTOName(genericElement, dto);
+            multiValue = true;
+          }
+        } else {
+          GenerateDTO dto = element.getAnnotation(GenerateDTO.class);
 
-        dtoName = createDTOName(element, dto);
+          dtoName = createDTOName(element, dto);
+        }
       }
 
       modelField = new DTOModelField(constantName(varname), varname, typeValue,
-        id, dtoName);
-
+        id, dtoName, multiValue);
     }
 
     return modelField;

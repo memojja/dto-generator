@@ -44,7 +44,7 @@ import java.lang.annotation.Target;
 public @interface GenerateDTO
 {
 
-  String value();
+  String value() default "__default";
 
   String suffix() default "DTO";
 

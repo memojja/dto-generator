@@ -1,7 +1,7 @@
-/*
+/**
  * The MIT License
  *
- * Copyright 2015 Sebastian Sdorra.
+ * Copyright (c) 2015, Sebastian Sdorra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,64 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-
-
 package com.github.sdorra.dto;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.net.URI;
+import java.util.LinkedHashMap;
 
 /**
  *
  * @author Sebastian Sdorra
  */
-public class Meta
+public class Link extends LinkedHashMap<String, Object>
 {
+  private static final String NAME_HREF = "href";
+  
+  private String href;
 
-  /**
-   * Constructs ...
-   *
-   *
-   * @param href
-   * @param mediaType
-   */
-  public Meta(URI href, String mediaType)
-  {
-    this.href = href;
-    this.mediaType = mediaType;
+  Link() {
   }
 
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public URI getHref()
-  {
-    return href;
+  public Link(String href) {
+    put(NAME_HREF, href);
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
-  public String getMediaType()
-  {
-    return mediaType;
+  public String getHref() {
+    return (String) get(NAME_HREF);
   }
-
-  //~--- fields ---------------------------------------------------------------
-
-  /** Field description */
-  private final URI href;
-
-  /** Field description */
-  private final String mediaType;
+  
 }
