@@ -42,7 +42,6 @@ public class {{simpleDTOName}} extends DTO<{{className}}>
    **/
   public {{simpleDTOName}}(DTOContext dtoContext, {{className}} {{instanceName}})
   {
-     this.putSelfLink(dtoContext, RESOURCE_PATH, {{instanceName}}.{{idField.getter}}());
      {{#fields}}{{#getter}}
      {{#dto}}
      {{#multiValue}}
@@ -58,6 +57,8 @@ public class {{simpleDTOName}} extends DTO<{{className}}>
      this.putNonNull(dtoContext, {{constant}}, {{instanceName}}.{{getter}}());
      {{/dto}}
      {{/getter}}{{/fields}}
+     // add self link
+     this.putSelfLink(dtoContext, RESOURCE_PATH, {{instanceName}}.{{idField.getter}}());
   }
   
   /**

@@ -267,7 +267,7 @@ public class DTOModelBuilder
    */
   private String constantName(String var)
   {
-    StringBuilder name = new StringBuilder();
+    StringBuilder name = new StringBuilder("FIELD_");
 
     for (char c : var.toCharArray())
     {
