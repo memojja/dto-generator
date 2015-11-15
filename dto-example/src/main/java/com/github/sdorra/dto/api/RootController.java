@@ -47,6 +47,7 @@ public class RootController
   @Produces(MediaType.APPLICATION_JSON)
   public Map<String,Object> getLinks(){
     Map<String,Object> map = new LinkedHashMap<String, Object>();
+    map.put("title", "User and group sample");
     Map<String,Object> links = new LinkedHashMap<String, Object>();
     map.put("_links", links);
     links.put("ping", info.getAbsolutePathBuilder().path(PingController.class).build());

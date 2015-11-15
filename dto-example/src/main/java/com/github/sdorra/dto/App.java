@@ -44,13 +44,14 @@ public class App
   }
   
   private static void addDemoData(){
+    User adams = new User("adams", "Douglas", "Adams");
     User dent = new User("dent", "Arthur", "Dent");
     User tricia = new User("tricia", "Trillian", "McMillian");
     User prefect = new User("prefect", "Ford", "Prefect");
-    UserService.getInstance().add(dent, tricia, prefect);
+    UserService.getInstance().add(adams, dent, tricia, prefect);
     
-    Group hitchhiker = new Group("hitchhiker", "The hitchhicker group", dent, tricia, prefect);
-    GroupService.getInstance().add(hitchhiker);
+    GroupService.getInstance().add(new Group("hitchhiker", "The hitchhicker group", adams, dent, tricia, prefect));
+    GroupService.getInstance().add(new Group("autors", "Group of authors", adams));
   }
   
   private static void startServer() throws Exception {
